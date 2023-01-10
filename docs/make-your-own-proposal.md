@@ -33,6 +33,8 @@ $ cd src/proto_016_PtMumbai
 $ tar czf mumbai_f.tar.gz lib_protocol/
 ```
 
+Create a bucket. For our example, we follow this [DigitalOcean Spaces guide](https://docs.digitalocean.com/products/spaces/reference/s3cmd/), create a bucket named `tezos-proto-cruncher` and install s3cmd.
+
 Then transfer the archive to the bucket:
 ```shell
 $ s3cmd put mumbai_f.tar.gz s3://tezos-proto-cruncher
