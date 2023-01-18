@@ -98,13 +98,11 @@ $ s3cmd put mumbai_v s3://tezos-proto-cruncher
 
 ### Prepare a values file
 
-Create a new yaml file named `mumbai_f.yaml`:
-
 ```yaml
 s3_access_key_id: DO00Y...
 s3_secret_access_key: '/5CFZV...'
-host_bucket: '%(bucket)s.ams3.digitaloceanspaces.com'
-host_base: 'ams3.digitaloceanspaces.com'
+bucket_endpoint_url: 'ams3.digitaloceanspaces.com'
+bucket_region: 'ams'
 bucket_name: "tezos-proto-cruncher"
 proto_name: "mumbai_v"
 vanity_string: "PtMumbai"
@@ -113,10 +111,11 @@ vanity_string: "PtMumbai"
 Where:
 
 * `s3_*`: the S3-compatible credentials
-* `host_*`: the endpoints of your S3-compatible service (for DigitalOcean, see [this tutorial](https://docs.digitalocean.com/products/spaces/reference/s3cmd/))
+* `bucket_endpoint_url`: the endpoint of your S3-compatible service (for DigitalOcean, see [this tutorial](https://docs.digitalocean.com/products/spaces/reference/s3cmd/))
+* `bucket_region`: the region of the bucket (for example `ams`)
 * `bucket_name`: name of your bucket (so the s3 url is `s3://<name>`)
-* `proto_name`: the name of the `.tar.gz` file containing your proto
-* `vanity_string`: the string you want your proto to start with (excluding the first two chars `Ps` or `Pt`).
+* `proto_name`: the name of the file containing your proto
+* `vanity_string`: the string you want your proto to start with
 
 ### Create a cluster
 
