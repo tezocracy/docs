@@ -12,7 +12,7 @@ This guide explains how to create such vanity hashes.
 
 Creating a vanity hash consists of editing a commented [random string inside the protocol proposal](https://gitlab.com/tezos/tezos/-/blob/master/src/proto_015_PtLimaPt/lib_protocol/main.ml#L417) and hashing it over and over, until the resulting hash starts with the string that you expect.
 
-This requires powerful computers. We are leveraging the cloud to perform this task.
+This requires powerful computers. We are leveraging the cloud to perform this task. But for simpler hashes, we also explain how to find locally on one computer.
 
 It works like this:
 
