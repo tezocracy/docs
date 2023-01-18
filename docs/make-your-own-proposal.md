@@ -22,22 +22,78 @@ It works like this:
 * wait
 * when the cluster finds results, it saves them in the same bucket.
 
-### Create a File Bucket with your protocol
+## Download your protocol binary
 
-After applying your protocol changes, create a tar archive of the protocol folder.
+Supposing that you are amending an existing proposal that is already snapshotted in the [Octez repository](https://gitlab.com/tezos/tezos):
 
-For example, from Octez repo:
+Apply your changes in the Ocaml protocol code directly in the snapshotted protocol folder, for example `src/proto_016_PtMumbai/lib_protocol`.
+
+Your modifications will change the protocol hash. Calculate the new hash:
+
+```
+$ ./octez-protocol-compiler -hash-only src/proto_016_*/lib_protocol
+Psm5KsjAm73vQsdMpBfkTm9YmBjx3DHznR3HHhbnpLkpjCkf2WX
+
+```
+Compile and run Octez in private mode:
+
+```
+eval $(opam env)
+make buil-deps
+make
+./octez-node run --synchronisation-threshold 0 --connections 0 --rpc-addr localhost
+```
+
+Download your new protocol in binary format:
 
 ```shell
-$ cd src/proto_016_PtMumbai
-$ tar czf mumbai_f.tar.gz lib_protocol/
+curl -H "Accept: application/octet-stream" http://localhost:8732/protocols/Psm5KsjAm73vQsdMpBfkTm9YmBjx3DHznR3HHhbnpLkpjCkf2WX > mumbai_v
 ```
+
+## Calculate the hash locally
+
+This method will calculate the hash on your computer.
+
+You will find a 4-character hash such as `PtMumb` in a few minutes. However, be advised that 6-character hashes such as `PtMumbai` will take a very long time to find on a single computer. For faster searches, please use the cloud method below.
+
+Download the searcher script:
+
+```
+wget https://github.com/oxheadalpha/tezos-k8s/raw/06fbdc8f625e875b07300f8ba4f398261eb209a2/charts/tezos-proto-cruncher/scripts/proto-cruncher.py
+```
+
+Install `base58` pip package in a new virtual environment:
+
+```
+virtualenv venv
+source venv/bin/activate
+pip install base58
+```
+
+Set an environment variable to the string you are searching, then start the script with the binary proto file name as argument. It will display matches when found:
+
+```
+$ export VANITY_STRING="PtMum"
+$ python proto-cruncher.py mumbai_v
+Original proto nonce: b'(* Vanity nonce: 5020978286916341 *)\n' and hash: Psm5KsjAm73vQsdMpBfkTm9YmBjx3DHznR3HHhbnpLkpjCkf2WX
+Found vanity nonce: b'(* Vanity nonce: 6031367764093451 *)\n' and hash: PtMumFNTQheTrXNAx9DaZhPeWjRMYquVnjxRF7daviopjFk2hFy
+Found vanity nonce: b'(* Vanity nonce: 7792594028928256 *)\n' and hash: PtMumjvL2n1BGLK5HhGEodT7swSiLhqeuiRGnQr9DabWCthBjQW
+```
+
+## Calculate the hash in a Kubernetes cluster
+
+You will need:
+
+* a file bucket (S3 or compatible) to store your hashes,
+* a Kubernetes cluster with as many machines as you like.
+
+We use DigitalOcean as an example.
 
 Create a bucket. For our example, we follow this [DigitalOcean Spaces guide](https://docs.digitalocean.com/products/spaces/reference/s3cmd/), create a bucket named `tezos-proto-cruncher` and install s3cmd.
 
-Then transfer the archive to the bucket:
+Then transfer the proto binary file to the bucket:
 ```shell
-$ s3cmd put mumbai_f.tar.gz s3://tezos-proto-cruncher
+$ s3cmd put mumbai_v s3://tezos-proto-cruncher
 ```
 
 ### Prepare a values file
@@ -50,8 +106,8 @@ s3_secret_access_key: '/5CFZV...'
 host_bucket: '%(bucket)s.ams3.digitaloceanspaces.com'
 host_base: 'ams3.digitaloceanspaces.com'
 bucket_name: "tezos-proto-cruncher"
-proto_name: "mumbai_f"
-vanity_string: "Mumbai"
+proto_name: "mumbai_v"
+vanity_string: "PtMumbai"
 ```
 
 Where:
